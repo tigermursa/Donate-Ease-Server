@@ -273,7 +273,67 @@ async function run() {
         });
       }
     });
+// API to get all Testimonials
+app.get("/api/v2/get", async (req, res) => {
+  try {
+    const allData = await dataTestimonials.find().toArray();
 
+    if (allData.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No data found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: allData,
+    });
+  } catch (error) {
+    console.error("Error fetching all data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+// API to get a single Testimonials
+app.get("/api/v2/get/:id", async (req, res) => {
+  const dataId = req.params.id;
+
+  try {
+    // Check if the provided ID is a valid MongoDB ObjectID
+    if (!ObjectId.isValid(dataId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ObjectID format",
+      });
+    }
+
+    const singleData = await dataTestimonials.findOne({
+      _id: new ObjectId(dataId),
+    });
+
+    if (!singleData) {
+      return res.status(404).json({
+        success: false,
+        message: "Data not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      data: singleData,
+    });
+  } catch (error) {
+    console.error("Error fetching single data:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
     // Start the server
     app.listen(port, () => {
       console.log(`🤩 Server is running on http://localhost:${port} 🤩`);
