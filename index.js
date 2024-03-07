@@ -37,6 +37,7 @@ async function run() {
     const dataCollection = db.collection("data");
     const dataTestimonials = db.collection("testimonial");
     const dataGratitudeWall = db.collection("gratitudewall");
+    const dataVolunteer = db.collection("volunteer");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -357,10 +358,57 @@ async function run() {
       }
     });
 
-    // API to get all Testimonials
+    // API to get all wall data
     app.get("/api/v3/get", async (req, res) => {
       try {
         const allData = await dataGratitudeWall.find().toArray();
+
+        if (allData.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "No data found",
+          });
+        }
+
+        res.json({
+          success: true,
+          data: allData,
+        });
+      } catch (error) {
+        console.error("Error fetching all data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
+    });
+
+    //VOlunteer Hub POST
+
+    app.post("/api/v3/create", async (req, res) => {
+      try {
+        const newData = req.body; // Use the entire request body as newData
+
+        // Insert data into the dataCollection
+        await dataVolunteer.insertOne(newData);
+
+        res.status(201).json({
+          success: true,
+          message: "Data inserted successfully",
+        });
+      } catch (error) {
+        console.error("Error inserting data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
+    });
+
+    // API to get all wall data
+    app.get("/api/v4/get", async (req, res) => {
+      try {
+        const allData = await dataVolunteer.find().toArray();
 
         if (allData.length === 0) {
           return res.status(404).json({
