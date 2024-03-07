@@ -36,6 +36,7 @@ async function run() {
     const collection = db.collection("users");
     const dataCollection = db.collection("data");
     const dataTestimonials = db.collection("testimonial");
+    const dataGratitudeWall = db.collection("gratitudewall");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -273,67 +274,88 @@ async function run() {
         });
       }
     });
-// API to get all Testimonials
-app.get("/api/v2/get", async (req, res) => {
-  try {
-    const allData = await dataTestimonials.find().toArray();
+    // API to get all Testimonials
+    app.get("/api/v2/get", async (req, res) => {
+      try {
+        const allData = await dataTestimonials.find().toArray();
 
-    if (allData.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No data found",
-      });
-    }
+        if (allData.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "No data found",
+          });
+        }
 
-    res.json({
-      success: true,
-      data: allData,
-    });
-  } catch (error) {
-    console.error("Error fetching all data:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-});
-
-// API to get a single Testimonials
-app.get("/api/v2/get/:id", async (req, res) => {
-  const dataId = req.params.id;
-
-  try {
-    // Check if the provided ID is a valid MongoDB ObjectID
-    if (!ObjectId.isValid(dataId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid ObjectID format",
-      });
-    }
-
-    const singleData = await dataTestimonials.findOne({
-      _id: new ObjectId(dataId),
+        res.json({
+          success: true,
+          data: allData,
+        });
+      } catch (error) {
+        console.error("Error fetching all data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
     });
 
-    if (!singleData) {
-      return res.status(404).json({
-        success: false,
-        message: "Data not found",
-      });
-    }
+    // API to get a single Testimonials
+    app.get("/api/v2/get/:id", async (req, res) => {
+      const dataId = req.params.id;
 
-    res.json({
-      success: true,
-      data: singleData,
+      try {
+        // Check if the provided ID is a valid MongoDB ObjectID
+        if (!ObjectId.isValid(dataId)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid ObjectID format",
+          });
+        }
+
+        const singleData = await dataTestimonials.findOne({
+          _id: new ObjectId(dataId),
+        });
+
+        if (!singleData) {
+          return res.status(404).json({
+            success: false,
+            message: "Data not found",
+          });
+        }
+
+        res.json({
+          success: true,
+          data: singleData,
+        });
+      } catch (error) {
+        console.error("Error fetching single data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
     });
-  } catch (error) {
-    console.error("Error fetching single data:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
+
+    //Gratitude Wall
+    app.post("/api/v3/create", async (req, res) => {
+      try {
+        const newData = req.body; // Use the entire request body as newData
+
+        // Insert data into the dataCollection
+        await dataGratitudeWall.insertOne(newData);
+
+        res.status(201).json({
+          success: true,
+          message: "Data inserted successfully",
+        });
+      } catch (error) {
+        console.error("Error inserting data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
     });
-  }
-});
     // Start the server
     app.listen(port, () => {
       console.log(`🤩 Server is running on http://localhost:${port} 🤩`);
