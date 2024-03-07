@@ -356,6 +356,32 @@ async function run() {
         });
       }
     });
+
+    // API to get all Testimonials
+    app.get("/api/v3/get", async (req, res) => {
+      try {
+        const allData = await dataGratitudeWall.find().toArray();
+
+        if (allData.length === 0) {
+          return res.status(404).json({
+            success: false,
+            message: "No data found",
+          });
+        }
+
+        res.json({
+          success: true,
+          data: allData,
+        });
+      } catch (error) {
+        console.error("Error fetching all data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
+    });
+
     // Start the server
     app.listen(port, () => {
       console.log(`🤩 Server is running on http://localhost:${port} 🤩`);
