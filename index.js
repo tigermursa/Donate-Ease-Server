@@ -32,9 +32,10 @@ async function run() {
     await client.connect();
     console.log("Connected to MongoDB");
 
-    const db = client.db("assignment-6");
+    const db = client.db("assignment-7");
     const collection = db.collection("users");
     const dataCollection = db.collection("data");
+    const dataTestimonials = db.collection("testimonial");
 
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
@@ -251,9 +252,31 @@ async function run() {
       }
     });
 
+    //Testimonials data
+    //post
+    app.post("/api/v2/create", async (req, res) => {
+      try {
+        const newData = req.body; // Use the entire request body as newData
+
+        // Insert data into the dataCollection
+        await dataTestimonials.insertOne(newData);
+
+        res.status(201).json({
+          success: true,
+          message: "Data inserted successfully",
+        });
+      } catch (error) {
+        console.error("Error inserting data:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+        });
+      }
+    });
+
     // Start the server
     app.listen(port, () => {
-      console.log(`✔ Server is running on http://localhost:${port}`);
+      console.log(`🤩 Server is running on http://localhost:${port} 🤩`);
     });
   } finally {
   }
@@ -263,9 +286,6 @@ run().catch(console.dir);
 
 // Test route
 app.get("/", (req, res) => {
-  const serverStatus = {
-    message: "Server is running smoothly ✔",
-    timestamp: new Date(),
-  };
-  res.json(serverStatus);
+  const data = "SERVER RUNNING SUCCESSFULLY";
+  res.json(data);
 });
